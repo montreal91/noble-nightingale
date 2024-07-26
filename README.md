@@ -1,2 +1,3 @@
-# noble-nightingale
+# Noble Nightingale
+
 Market Simulation Project
