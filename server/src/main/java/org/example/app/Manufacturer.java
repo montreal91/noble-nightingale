@@ -1,5 +1,6 @@
 package org.example.app;
 
+import lombok.Getter;
 import org.springframework.stereotype.Component;
 
 import java.util.EnumMap;
@@ -27,6 +28,7 @@ class Pricing {
 /**
  * Every Manufacturer is an Agent, but not all Agents are manufacturers.
  */
+@Getter
 class Manufacturer implements Agent {
     private final String name;
     private final String gameName;
@@ -45,10 +47,6 @@ class Manufacturer implements Agent {
         setDemand(demands.demandA(), demands.demandB(), demands.demandC());
     }
 
-    String getName() {
-        return name;
-    }
-
     void setSellingPrice(int price) {
         pricing.setResourcePrice(productionResource, price);
     }
@@ -64,10 +62,6 @@ class Manufacturer implements Agent {
         balance.add(ResourceType.C, -demand.get(ResourceType.C));
     }
 
-    String getGameName() {
-        return gameName;
-    }
-
     private void setDemand(int demandA, int demandB, int demandC) {
         demand.put(ResourceType.A, demandA);
         demand.put(ResourceType.B, demandB);
@@ -80,7 +74,7 @@ class Manufacturer implements Agent {
 class ManufacturerRepository {
     private final Map<String, Manufacturer> accounts = new HashMap<>();
 
-    Manufacturer getAccount(String name, String gameName) {
+    Manufacturer getManufacturer(String name, String gameName) {
         String key = makeKey(name, gameName);
 
         if (!accounts.containsKey(key)) {

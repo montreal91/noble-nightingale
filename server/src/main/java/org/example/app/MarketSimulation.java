@@ -4,11 +4,7 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 enum ResourceType {
     A, B, C, MONEY
@@ -26,7 +22,7 @@ class Balance {
     }
 }
 
-enum DayState {
+enum DayStatus {
     PRODUCTION, TRADING
 }
 
@@ -34,20 +30,24 @@ class Game {
     final String name;
     final int lastDay;
     private int currentDay = 1;
-    private DayState dayState = DayState.PRODUCTION;
+    private DayStatus dayState = DayStatus.PRODUCTION;
+    private final List<String> tradeOrder;
+    private int currentBuyer = 0;
 
-    Game(String name, int lastDay) {
+    Game(String name, int lastDay, List<String> manufacturers) {
         this.name = name;
         this.lastDay = lastDay;
+
+        this.tradeOrder = initManufacturers(manufacturers);
     }
 
     void nextDay() {
         currentDay++;
-        dayState = DayState.PRODUCTION;
+        dayState = DayStatus.PRODUCTION;
     }
 
     void toTrading() {
-        dayState = DayState.TRADING;
+        dayState = DayStatus.TRADING;
     }
 
     int getCurrentDay() {
@@ -59,8 +59,28 @@ class Game {
     }
 
 
-    DayState getDayState() {
+    DayStatus getDayState() {
         return dayState;
+    }
+
+    List<String> currentTradeOrder() {
+        return List.copyOf(tradeOrder);
+    }
+
+    void nextBuyer() {
+        currentBuyer++;
+        currentBuyer %= tradeOrder.size();
+    }
+
+    void nextTradeOrder() {
+        tradeOrder.add(tradeOrder.removeFirst());
+    }
+
+    private static List<String> initManufacturers(List<String> manufacturers) {
+        var mutableManufacturers = new ArrayList<>(manufacturers);
+        Collections.shuffle(mutableManufacturers);
+        return List.copyOf(mutableManufacturers);
+
     }
 }
 
@@ -124,7 +144,12 @@ class StartGameCommandHandler {
             );
         }
 
-        Game game = new Game(command.name(), command.lastDay());
+        Game game = new Game(
+                command.name(),
+                command.lastDay(),
+                command.manufacturers().stream().map(StartGameManufacturer::name).toList()
+        );
+
         gameRepository.save(game);
         buildManufacturers(command).forEach(manufacturerRepository::save);
 
