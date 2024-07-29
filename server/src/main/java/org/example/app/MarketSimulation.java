@@ -30,8 +30,9 @@ class Game {
     final String name;
     final int lastDay;
     private int currentDay = 1;
-    private DayStatus dayState = DayStatus.PRODUCTION;
+    private DayStatus dayStatus = DayStatus.PRODUCTION;
     private final List<String> tradeOrder;
+    private final List<Deal> deals = new ArrayList<>();
     private int currentBuyer = 0;
 
     Game(String name, int lastDay, List<String> manufacturers) {
@@ -43,11 +44,12 @@ class Game {
 
     void nextDay() {
         currentDay++;
-        dayState = DayStatus.PRODUCTION;
+        dayStatus = DayStatus.PRODUCTION;
     }
 
     void toTrading() {
-        dayState = DayStatus.TRADING;
+        dayStatus = DayStatus.TRADING;
+        currentBuyer = 0;
     }
 
     int getCurrentDay() {
@@ -59,12 +61,16 @@ class Game {
     }
 
 
-    DayStatus getDayState() {
-        return dayState;
+    DayStatus getDayStatus() {
+        return dayStatus;
     }
 
     List<String> currentTradeOrder() {
         return List.copyOf(tradeOrder);
+    }
+
+    List<Deal> currentDeals() {
+        return List.copyOf(deals);
     }
 
     void nextBuyer() {
@@ -79,8 +85,7 @@ class Game {
     private static List<String> initManufacturers(List<String> manufacturers) {
         var mutableManufacturers = new ArrayList<>(manufacturers);
         Collections.shuffle(mutableManufacturers);
-        return List.copyOf(mutableManufacturers);
-
+        return new ArrayList<>(mutableManufacturers);
     }
 }
 
@@ -88,10 +93,11 @@ class Game {
 class GameRepository {
     private final Map<String, Game> games = new HashMap<>();
 
-    Game getGame(String name) {
+    Game getGameOrThrow(String name) {
         if (!games.containsKey(name)) {
             throw new RuntimeException("Game " + name + " not found");
         }
+
         return games.get(name);
     }
 

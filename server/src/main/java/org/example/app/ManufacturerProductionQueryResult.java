@@ -11,8 +11,10 @@ public record ManufacturerProductionQueryResult(
         int lastDay,
         String productionResource,
         int productionCost,
+        int sellingPrice,
         BalanceView balance,
         List<String> tradeOrder,
-        List<Deal> dealHistory,
-        Map<String, Integer> demand
+        List<ResponseDeal> dealHistory,
+        Map<String, Integer> demand,
+        boolean isReadyForTrading
 ) {}

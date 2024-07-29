@@ -3,7 +3,6 @@ package org.example.app;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -12,10 +11,11 @@ import java.util.stream.Collectors;
 public class ManufacturerProductionQueryHandler {
     private final GameRepository gameRepository;
     private final ManufacturerRepository manufacturerRepository;
+    private final DealToResponseMapper dealMapper;
 
     public ManufacturerProductionQueryResult handle(ManufacturerProductionQuery query) {
-        Game game = gameRepository.getGame(query.gameName());
-        Manufacturer manufacturer = manufacturerRepository.getManufacturer(
+        Game game = gameRepository.getGameOrThrow(query.gameName());
+        Manufacturer manufacturer = manufacturerRepository.getManufacturerOrThrow(
                 query.manufacturerName(), query.gameName()
         );
 
@@ -36,15 +36,20 @@ public class ManufacturerProductionQueryHandler {
                 .resourceC(manufacturer.getBalance().get(ResourceType.C))
                 .build();
 
+        var deals = game.currentDeals().stream().map(dealMapper::map).toList();
+
         return ManufacturerProductionQueryResult
                 .builder()
                 .balance(balance)
                 .currentDay(game.getCurrentDay())
+                .sellingPrice(manufacturer.getSellingPrice())
                 .lastDay(game.lastDay)
                 .productionResource(manufacturer.getProductionResource().name())
                 .productionCost(manufacturer.getProductionCost())
-                .tradeOrder(List.of())
+                .tradeOrder(game.currentTradeOrder())
                 .demand(demand)
+                .dealHistory(deals)
+                .isReadyForTrading(manufacturer.isReadyForTrading())
                 .build();
     }
 }
