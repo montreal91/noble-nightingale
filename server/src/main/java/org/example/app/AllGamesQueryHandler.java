@@ -10,8 +10,18 @@ public class AllGamesQueryHandler {
 
     public AllGamesResponse handle() {
         var games = gameRepository.getAllGames();
-        return new AllGamesResponse(
-                games.stream().map(game -> new GameListView(game.name)).toList()
-        );
+
+        return AllGamesResponse
+                .builder()
+                .games(games.stream().map(AllGamesQueryHandler::gameToView).toList())
+                .build();
+    }
+
+    private static GameListView gameToView(Game game) {
+        return GameListView
+                .builder()
+                .isOver(game.isOver())
+                .name(game.name)
+                .build();
     }
 }

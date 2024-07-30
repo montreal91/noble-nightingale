@@ -9,7 +9,7 @@ public class DealToResponseMapper {
                 .day(deal.day())
                 .buyerName(deal.buyerName())
                 .sellerName(deal.sellerName())
-                .resourceType(deal.resourceType())
+                .resourceType(deal.resourceType().name())
                 .resourceAmount(deal.resourceAmount())
                 .resourcePrice(deal.resourcePrice())
                 .build();

@@ -1,8 +1,11 @@
 package org.example.app;
 
+import lombok.Builder;
+
+@Builder
 public record Deal(
         int day,
-        String resourceType,
+        ResourceType resourceType,
         String sellerName,
         String buyerName,
         int resourceAmount,

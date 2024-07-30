@@ -4,7 +4,13 @@ import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 enum ResourceType {
     A, B, C, MONEY
@@ -42,7 +48,7 @@ class Game {
         this.tradeOrder = initManufacturers(manufacturers);
     }
 
-    void nextDay() {
+    private void nextDay() {
         currentDay++;
         dayStatus = DayStatus.PRODUCTION;
     }
@@ -50,6 +56,19 @@ class Game {
     void toTrading() {
         dayStatus = DayStatus.TRADING;
         currentBuyer = 0;
+    }
+
+    void makeDeal(String sellerName, ResourceType resourceType, int amount, int price) {
+        var deal = Deal.builder()
+                .buyerName(tradeOrder.get(currentBuyer))
+                .sellerName(sellerName)
+                .day(currentDay)
+                .resourceType(resourceType)
+                .resourceAmount(amount)
+                .resourcePrice(price)
+                .build();
+
+        deals.add(deal);
     }
 
     int getCurrentDay() {
@@ -60,6 +79,13 @@ class Game {
         return currentDay > lastDay;
     }
 
+    boolean isCurrentBuyer(String manufacturer) {
+        if (dayStatus != DayStatus.TRADING) {
+            return false;
+        }
+
+        return Objects.equals(manufacturer, tradeOrder.get(currentBuyer));
+    }
 
     DayStatus getDayStatus() {
         return dayStatus;
@@ -76,9 +102,14 @@ class Game {
     void nextBuyer() {
         currentBuyer++;
         currentBuyer %= tradeOrder.size();
+
+        if (currentBuyer == 0) {
+            nextTradeOrder();
+            nextDay();
+        }
     }
 
-    void nextTradeOrder() {
+    private void nextTradeOrder() {
         tradeOrder.add(tradeOrder.removeFirst());
     }
 

@@ -15,6 +15,7 @@ public record ManufacturerProductionQueryResult(
         BalanceView balance,
         List<String> tradeOrder,
         List<ResponseDeal> dealHistory,
-        Map<String, Integer> demand,
+        Map<String, Integer> ownDemand,
+        int totalDemand,
         boolean isReadyForTrading
 ) {}

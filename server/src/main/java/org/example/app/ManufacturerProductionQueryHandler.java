@@ -3,6 +3,7 @@ package org.example.app;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -19,10 +20,6 @@ public class ManufacturerProductionQueryHandler {
                 query.manufacturerName(), query.gameName()
         );
 
-        if (game == null || manufacturer == null) {
-            return null;
-        }
-
         var demand = manufacturer
                 .getDemand()
                 .entrySet()
@@ -36,7 +33,10 @@ public class ManufacturerProductionQueryHandler {
                 .resourceC(manufacturer.getBalance().get(ResourceType.C))
                 .build();
 
-        var deals = game.currentDeals().stream().map(dealMapper::map).toList();
+        var deals = game.currentDeals()
+                .stream()
+                .map(dealMapper::map)
+                .toList();
 
         return ManufacturerProductionQueryResult
                 .builder()
@@ -47,9 +47,23 @@ public class ManufacturerProductionQueryHandler {
                 .productionResource(manufacturer.getProductionResource().name())
                 .productionCost(manufacturer.getProductionCost())
                 .tradeOrder(game.currentTradeOrder())
-                .demand(demand)
+                .ownDemand(demand)
+                .totalDemand(getTotalDemand(
+                        manufacturer.getProductionResource(), query.gameName()
+                ))
                 .dealHistory(deals)
                 .isReadyForTrading(manufacturer.isReadyForTrading())
                 .build();
+    }
+
+    private int getTotalDemand(ResourceType type, String gameName) {
+        var mfs = manufacturerRepository.getGameManufacturers(gameName);
+        var totalDemand = 0;
+
+        for (var mf : mfs) {
+            totalDemand += mf.getDemand().get(type);
+        }
+
+        return totalDemand;
     }
 }

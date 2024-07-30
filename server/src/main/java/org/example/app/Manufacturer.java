@@ -60,12 +60,20 @@ class Manufacturer implements Agent {
         setDemand(demands.demandA(), demands.demandB(), demands.demandC());
     }
 
+    void addResource(ResourceType type, int amount) {
+        balance.add(type, amount);
+    }
+
     int getSellingPrice() {
        return pricing.get(productionResource);
     }
 
     void setSellingPrice(int price) {
         pricing.setResourcePrice(productionResource, price);
+    }
+
+    int getResourceForSale() {
+        return balance.get(productionResource);
     }
 
     void produce(int amount) {
@@ -110,6 +118,10 @@ class ManufacturerRepository {
     void save(Manufacturer manufacturer) {
         String key = makeKey(manufacturer.getName(), manufacturer.getGameName());
         manufacturers.put(key, manufacturer);
+    }
+
+    void saveAll(List<Manufacturer> manufacturers) {
+        manufacturers.forEach(this::save);
     }
 
     private String makeKey(String accName, String gameName) {

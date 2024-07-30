@@ -1,7 +1,11 @@
 package org.example.app;
 
+import lombok.Builder;
+
 import java.util.List;
 
-record GameListView(String name) {}
+@Builder
+record GameListView(String name, boolean isOver) {}
 
+@Builder
 public record AllGamesResponse(List<GameListView> games) {}
